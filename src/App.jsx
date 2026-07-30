@@ -8,16 +8,9 @@ function App() {
     { id: 3, name: 'Aman', marks: 78 }
   ]
 
-  // ---------------- Show/Hide element ----------------
   const [isVisible, setIsVisible] = useState(true)
-
-  // ---------------- Enable/Disable a button ----------------
   const [isEnabled, setIsEnabled] = useState(false)
-
-  // ---------------- 2-way data binding ----------------
   const [nameInput, setNameInput] = useState('')
-
-  // ---------------- Dynamically add child components ----------------
   const [childList, setChildList] = useState([])
 
   function addChild() {
@@ -36,7 +29,6 @@ function App() {
     )
   }
 
-  // ---------------- Sum of two numbers ----------------
   const [num1, setNum1] = useState('')
   const [num2, setNum2] = useState('')
   const sum = Number(num1 || 0) + Number(num2 || 0)
@@ -88,16 +80,81 @@ function App() {
     sortedAndFilteredCustomers = [...sortedAndFilteredCustomers].sort((a, b) => {
       let valA = a[sortField]
       let valB = b[sortField]
-
       if (sortField === 'totalSpent') {
         valA = parseFloat(valA.replace(',', '.'))
         valB = parseFloat(valB.replace(',', '.'))
       }
-
       if (valA < valB) return sortAsc ? -1 : 1
       if (valA > valB) return sortAsc ? 1 : -1
       return 0
     })
+  }
+
+  // ================= Task 5: Drag & Drop Task List =================
+  const [blocks, setBlocks] = useState({
+    today: [],
+    tomorrow: [],
+    thisWeek: [],
+    nextWeek: [],
+    unplanned: ['Task 1', 'Task 2', 'Task 3', 'Task 4', 'Task 5', 'Task 6', 'Task 7', 'Task 8', 'Task 9', 'Task 10']
+  })
+
+  // Jab drag shuru hoti hai, hum yaad rakhte hain: kaunsa task, kis block se
+  function handleDragStart(e, task, fromBlock) {
+    e.dataTransfer.setData('task', task)
+    e.dataTransfer.setData('fromBlock', fromBlock)
+  }
+
+  // Ye zaroori hai — browser ko batana padta hai "yahan drop allowed hai"
+  function handleDragOver(e) {
+    e.preventDefault()
+  }
+
+  // Jab task chhoda (drop) jata hai
+  function handleDrop(e, toBlock) {
+    e.preventDefault()
+    const task = e.dataTransfer.getData('task')
+    const fromBlock = e.dataTransfer.getData('fromBlock')
+
+    if (fromBlock === toBlock) return // same block mein drop kiya, kuch nahi karna
+
+    setBlocks((prevBlocks) => {
+      // purani list se task hatao
+      const updatedFromList = prevBlocks[fromBlock].filter((t) => t !== task)
+      // nayi list mein task jodo
+      const updatedToList = [...prevBlocks[toBlock], task]
+
+      return {
+        ...prevBlocks,
+        [fromBlock]: updatedFromList,
+        [toBlock]: updatedToList
+      }
+    })
+  }
+
+  // Ek reusable block component — taaki 5 baar same code na likhna pade
+  function TaskBlock({ title, blockKey }) {
+    return (
+      <div
+        onDragOver={handleDragOver}
+        onDrop={(e) => handleDrop(e, blockKey)}
+        style={dragDropStyles.block}
+      >
+        <div style={dragDropStyles.blockTitle}>{title}</div>
+        <div style={dragDropStyles.blockBody}>
+          {blocks[blockKey].map((task, index) => (
+            <div
+              key={index}
+              draggable
+              onDragStart={(e) => handleDragStart(e, task, blockKey)}
+              style={dragDropStyles.taskItem}
+            >
+              {task}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -257,6 +314,23 @@ function App() {
         </tbody>
       </table>
 
+      <hr style={styles.hr} />
+
+      {/* ============ TASK 5 — Drag & Drop Task List ============ */}
+      <h1 style={styles.mainHeading}>Task 5: Create a Drag & Drop Task List</h1>
+
+      <div style={dragDropStyles.row}>
+        <TaskBlock title="TODAY" blockKey="today" />
+        <TaskBlock title="TOMORROW" blockKey="tomorrow" />
+      </div>
+      <div style={dragDropStyles.row}>
+        <TaskBlock title="THIS WEEK" blockKey="thisWeek" />
+        <TaskBlock title="NEXT WEEK" blockKey="nextWeek" />
+      </div>
+      <div style={dragDropStyles.rowFull}>
+        <TaskBlock title="UNPLANNED" blockKey="unplanned" />
+      </div>
+
     </div>
   )
 }
@@ -275,6 +349,43 @@ const styles = {
   },
   hr: {
     margin: '35px 0'
+  }
+}
+
+const dragDropStyles = {
+  row: {
+    display: 'flex',
+    gap: '15px',
+    marginBottom: '15px'
+  },
+  rowFull: {
+    marginBottom: '15px'
+  },
+  block: {
+    flex: 1,
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    minHeight: '100px'
+  },
+  blockTitle: {
+    background: '#e8eef9',
+    color: '#d9534f',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    padding: '8px',
+    borderBottom: '1px solid #ccc'
+  },
+  blockBody: {
+    padding: '10px',
+    minHeight: '80px'
+  },
+  taskItem: {
+    background: '#fff',
+    border: '1px solid #ddd',
+    borderRadius: '3px',
+    padding: '8px',
+    marginBottom: '6px',
+    cursor: 'grab'
   }
 }
 
