@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 function App() {
-  // ---------------- Array of records ----------------
+  // ---------------- Array of records (Task 1 part) ----------------
   const students = [
     { id: 1, name: 'Rahul', marks: 85 },
     { id: 2, name: 'Priya', marks: 92 },
@@ -14,7 +14,7 @@ function App() {
   // ---------------- Enable/Disable a button ----------------
   const [isEnabled, setIsEnabled] = useState(false)
 
-  // ---------------- 2-way data binding using textbox ----------------
+  // ---------------- 2-way data binding ----------------
   const [nameInput, setNameInput] = useState('')
 
   // ---------------- Dynamically add child components ----------------
@@ -51,10 +51,59 @@ function App() {
     fruit.toLowerCase().includes(searchText.toLowerCase())
   )
 
-  return (
-    <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '600px', margin: '0 auto' }}>
+  // ================= Task 4: Datagrid =================
+  const customers = [
+    { id: 1, customer: 'Branson Weimann', lastSeen: '09/08/2020', orders: 2, totalSpent: '295,31', latestPurchase: '27/11/2019 a 13:12:25', news: true, segment: 'Regular' },
+    { id: 2, customer: 'Anna Bruen', lastSeen: '09/08/2020', orders: 3, totalSpent: '847,91', latestPurchase: '07/06/2020 a 07:48:18', news: false, segment: null },
+    { id: 3, customer: 'Gudrun Tromp', lastSeen: '09/08/2020', orders: 0, totalSpent: '0,00', latestPurchase: '', news: true, segment: null },
+    { id: 4, customer: 'Florencio Roob', lastSeen: '09/08/2020', orders: 0, totalSpent: '0,00', latestPurchase: '', news: true, segment: null },
+    { id: 5, customer: 'Maddison Torp', lastSeen: '09/08/2020', orders: 0, totalSpent: '0,00', latestPurchase: '', news: true, segment: null },
+    { id: 6, customer: 'Rashawn Beer', lastSeen: '09/08/2020', orders: 3, totalSpent: '693,50', latestPurchase: '19/05/2020 a 10:03:18', news: true, segment: null },
+    { id: 7, customer: 'Beth Hill', lastSeen: '08/08/2020', orders: 0, totalSpent: '0,00', latestPurchase: '', news: true, segment: null },
+    { id: 8, customer: 'Brandyn Hoeger', lastSeen: '08/08/2020', orders: 0, totalSpent: '0,00', latestPurchase: '', news: true, segment: null },
+    { id: 9, customer: 'Rey Schuster', lastSeen: '08/08/2020', orders: 0, totalSpent: '0,00', latestPurchase: '', news: true, segment: null },
+    { id: 10, customer: 'Jakob Armstrong', lastSeen: '08/08/2020', orders: 0, totalSpent: '0,00', latestPurchase: '', news: true, segment: null },
+    { id: 11, customer: 'Janae Glover', lastSeen: '08/08/2020', orders: 0, totalSpent: '0,00', latestPurchase: '', news: true, segment: 'Regular' },
+    { id: 12, customer: 'Dina Tillman', lastSeen: '08/08/2020', orders: 0, totalSpent: '0,00', latestPurchase: '', news: true, segment: null }
+  ]
 
-      {/* ============ TASK 1 — all 7 small learning tasks inside ============ */}
+  const [gridSearch, setGridSearch] = useState('')
+  const [sortField, setSortField] = useState(null)
+  const [sortAsc, setSortAsc] = useState(true)
+
+  function handleSort(field) {
+    if (sortField === field) {
+      setSortAsc(!sortAsc)
+    } else {
+      setSortField(field)
+      setSortAsc(true)
+    }
+  }
+
+  let sortedAndFilteredCustomers = customers.filter((cust) =>
+    cust.customer.toLowerCase().includes(gridSearch.toLowerCase())
+  )
+
+  if (sortField) {
+    sortedAndFilteredCustomers = [...sortedAndFilteredCustomers].sort((a, b) => {
+      let valA = a[sortField]
+      let valB = b[sortField]
+
+      if (sortField === 'totalSpent') {
+        valA = parseFloat(valA.replace(',', '.'))
+        valB = parseFloat(valB.replace(',', '.'))
+      }
+
+      if (valA < valB) return sortAsc ? -1 : 1
+      if (valA > valB) return sortAsc ? 1 : -1
+      return 0
+    })
+  }
+
+  return (
+    <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '900px', margin: '0 auto' }}>
+
+      {/* ============ TASK 1 ============ */}
       <h1 style={styles.mainHeading}>Task 1: Small Programming Learning Tasks</h1>
 
       <div style={styles.subSection}>
@@ -159,6 +208,54 @@ function App() {
           <li>No matching fruits found</li>
         )}
       </ul>
+
+      <hr style={styles.hr} />
+
+      {/* ============ TASK 4 — Datagrid ============ */}
+      <h1 style={styles.mainHeading}>Task 4: Create a Datagrid</h1>
+
+      <input
+        type="text"
+        placeholder="Search by customer name..."
+        value={gridSearch}
+        onChange={(e) => setGridSearch(e.target.value)}
+        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+      />
+
+      <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', width: '100%', fontSize: '14px' }}>
+        <thead style={{ background: '#f0f0f0' }}>
+          <tr>
+            <th onClick={() => handleSort('customer')} style={{ cursor: 'pointer' }}>
+              Customer {sortField === 'customer' ? (sortAsc ? '▲' : '▼') : ''}
+            </th>
+            <th onClick={() => handleSort('lastSeen')} style={{ cursor: 'pointer' }}>
+              Last Seen {sortField === 'lastSeen' ? (sortAsc ? '▲' : '▼') : ''}
+            </th>
+            <th onClick={() => handleSort('orders')} style={{ cursor: 'pointer' }}>
+              Orders {sortField === 'orders' ? (sortAsc ? '▲' : '▼') : ''}
+            </th>
+            <th onClick={() => handleSort('totalSpent')} style={{ cursor: 'pointer' }}>
+              Total Spent {sortField === 'totalSpent' ? (sortAsc ? '▲' : '▼') : ''}
+            </th>
+            <th>Latest Purchase</th>
+            <th>News</th>
+            <th>Segment</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedAndFilteredCustomers.map((cust) => (
+            <tr key={cust.id}>
+              <td>{cust.customer}</td>
+              <td>{cust.lastSeen}</td>
+              <td>{cust.orders}</td>
+              <td>{cust.totalSpent} $US</td>
+              <td>{cust.latestPurchase || '-'}</td>
+              <td>{cust.news ? '✔' : '✘'}</td>
+              <td>{cust.segment || '-'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
     </div>
   )
