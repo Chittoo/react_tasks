@@ -72,9 +72,17 @@ function App() {
     }
   }
 
-  let sortedAndFilteredCustomers = customers.filter((cust) =>
-    cust.customer.toLowerCase().includes(gridSearch.toLowerCase())
+  let sortedAndFilteredCustomers = customers.filter((cust) => {
+  const searchLower = gridSearch.toLowerCase()
+  return (
+    cust.customer.toLowerCase().includes(searchLower) ||
+    cust.lastSeen.toLowerCase().includes(searchLower) ||
+    String(cust.orders).includes(searchLower) ||
+    cust.totalSpent.toLowerCase().includes(searchLower) ||
+    (cust.latestPurchase && cust.latestPurchase.toLowerCase().includes(searchLower)) ||
+    (cust.segment && cust.segment.toLowerCase().includes(searchLower))
   )
+})
 
   if (sortField) {
     sortedAndFilteredCustomers = [...sortedAndFilteredCustomers].sort((a, b) => {
