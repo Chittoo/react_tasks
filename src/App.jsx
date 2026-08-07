@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import Task6Page from './Task6Page'
 
 function App() {
   // ---------------- Array of records (Task 1 part) ----------------
@@ -73,16 +75,16 @@ function App() {
   }
 
   let sortedAndFilteredCustomers = customers.filter((cust) => {
-  const searchLower = gridSearch.toLowerCase()
-  return (
-    cust.customer.toLowerCase().includes(searchLower) ||
-    cust.lastSeen.toLowerCase().includes(searchLower) ||
-    String(cust.orders).includes(searchLower) ||
-    cust.totalSpent.toLowerCase().includes(searchLower) ||
-    (cust.latestPurchase && cust.latestPurchase.toLowerCase().includes(searchLower)) ||
-    (cust.segment && cust.segment.toLowerCase().includes(searchLower))
-  )
-})
+    const searchLower = gridSearch.toLowerCase()
+    return (
+      cust.customer.toLowerCase().includes(searchLower) ||
+      cust.lastSeen.toLowerCase().includes(searchLower) ||
+      String(cust.orders).includes(searchLower) ||
+      cust.totalSpent.toLowerCase().includes(searchLower) ||
+      (cust.latestPurchase && cust.latestPurchase.toLowerCase().includes(searchLower)) ||
+      (cust.segment && cust.segment.toLowerCase().includes(searchLower))
+    )
+  })
 
   if (sortField) {
     sortedAndFilteredCustomers = [...sortedAndFilteredCustomers].sort((a, b) => {
@@ -107,29 +109,24 @@ function App() {
     unplanned: ['Task 1', 'Task 2', 'Task 3', 'Task 4', 'Task 5', 'Task 6', 'Task 7', 'Task 8', 'Task 9', 'Task 10']
   })
 
-  // Jab drag shuru hoti hai, hum yaad rakhte hain: kaunsa task, kis block se
   function handleDragStart(e, task, fromBlock) {
     e.dataTransfer.setData('task', task)
     e.dataTransfer.setData('fromBlock', fromBlock)
   }
 
-  // Ye zaroori hai — browser ko batana padta hai "yahan drop allowed hai"
   function handleDragOver(e) {
     e.preventDefault()
   }
 
-  // Jab task chhoda (drop) jata hai
   function handleDrop(e, toBlock) {
     e.preventDefault()
     const task = e.dataTransfer.getData('task')
     const fromBlock = e.dataTransfer.getData('fromBlock')
 
-    if (fromBlock === toBlock) return // same block mein drop kiya, kuch nahi karna
+    if (fromBlock === toBlock) return
 
     setBlocks((prevBlocks) => {
-      // purani list se task hatao
       const updatedFromList = prevBlocks[fromBlock].filter((t) => t !== task)
-      // nayi list mein task jodo
       const updatedToList = [...prevBlocks[toBlock], task]
 
       return {
@@ -140,7 +137,6 @@ function App() {
     })
   }
 
-  // Ek reusable block component — taaki 5 baar same code na likhna pade
   function TaskBlock({ title, blockKey }) {
     return (
       <div
@@ -166,180 +162,186 @@ function App() {
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '900px', margin: '0 auto' }}>
+    <Routes>
+      <Route path="/" element={
+        <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '900px', margin: '0 auto' }}>
 
-      {/* ============ TASK 1 ============ */}
-      <h1 style={styles.mainHeading}>Task 1: Small Programming Learning Tasks</h1>
+          {/* ============ TASK 1 ============ */}
+          <h1 style={styles.mainHeading}>Task 1: Small Programming Learning Tasks</h1>
 
-      <div style={styles.subSection}>
-        <p>This is a simple paragraph written using JSX.</p>
-        <p>My name is <b>Megha</b> and I am learning React!</p>
-      </div>
+          <div style={styles.subSection}>
+            <p>This is a simple paragraph written using JSX.</p>
+            <p>My name is <b>Megha</b> and I am learning React!</p>
+          </div>
 
-      <div style={styles.subSection}>
-        <ul>
-          {students.map((student) => (
-            <li key={student.id}>
-              {student.name} — Marks: {student.marks}
-            </li>
-          ))}
-        </ul>
-      </div>
+          <div style={styles.subSection}>
+            <ul>
+              {students.map((student) => (
+                <li key={student.id}>
+                  {student.name} — Marks: {student.marks}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-      <div style={styles.subSection}>
-        <button onClick={() => setIsVisible(!isVisible)}>
-          {isVisible ? 'Hide' : 'Show'}
-        </button>
-        {isVisible && (
-          <p>This paragraph can be shown or hidden by clicking the button above!</p>
-        )}
-      </div>
+          <div style={styles.subSection}>
+            <button onClick={() => setIsVisible(!isVisible)}>
+              {isVisible ? 'Hide' : 'Show'}
+            </button>
+            {isVisible && (
+              <p>This paragraph can be shown or hidden by clicking the button above!</p>
+            )}
+          </div>
 
-      <div style={styles.subSection}>
-        <label>
+          <div style={styles.subSection}>
+            <label>
+              <input
+                type="checkbox"
+                checked={isEnabled}
+                onChange={() => setIsEnabled(!isEnabled)}
+              />
+              {' '}Check this to enable the button below
+            </label>
+            <br /><br />
+            <button disabled={!isEnabled}>
+              {isEnabled ? 'I am clickable now!' : 'I am disabled'}
+            </button>
+          </div>
+
+          <div style={styles.subSection}>
+            <input
+              type="text"
+              placeholder="Type your name..."
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+            />
+            <p>You typed: <b>{nameInput}</b></p>
+          </div>
+
+          <div style={styles.subSection}>
+            <button onClick={addChild}>Add a new child component</button>
+            <div style={{ marginTop: '10px' }}>
+              {childList.map((child) => (
+                <ChildBox key={child.id} text={child.text} />
+              ))}
+            </div>
+          </div>
+
+          <div style={styles.subSection}>
+            <input
+              type="number"
+              placeholder="Number 1"
+              value={num1}
+              onChange={(e) => setNum1(e.target.value)}
+              style={{ width: '100px', marginRight: '10px' }}
+            />
+            +
+            <input
+              type="number"
+              placeholder="Number 2"
+              value={num2}
+              onChange={(e) => setNum2(e.target.value)}
+              style={{ width: '100px', margin: '0 10px' }}
+            />
+            <p>Sum = <b>{sum}</b></p>
+          </div>
+
+          <hr style={styles.hr} />
+
+          {/* ============ TASK 2 — Counter ============ */}
+          <h1 style={styles.mainHeading}>Task 2: Create a Counter</h1>
+          <button onClick={() => setCounter(counter - 1)}>Decrease</button>
+          <span style={{ margin: '0 15px', fontSize: '20px' }}>{counter}</span>
+          <button onClick={() => setCounter(counter + 1)}>Increase</button>
+
+          <hr style={styles.hr} />
+
+          {/* ============ TASK 3 — Search Filter ============ */}
+          <h1 style={styles.mainHeading}>Task 3: Build Search Filter</h1>
           <input
-            type="checkbox"
-            checked={isEnabled}
-            onChange={() => setIsEnabled(!isEnabled)}
+            type="text"
+            placeholder="Search fruits..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
           />
-          {' '}Check this to enable the button below
-        </label>
-        <br /><br />
-        <button disabled={!isEnabled}>
-          {isEnabled ? 'I am clickable now!' : 'I am disabled'}
-        </button>
-      </div>
+          <ul>
+            {filteredFruits.length > 0 ? (
+              filteredFruits.map((fruit, index) => <li key={index}>{fruit}</li>)
+            ) : (
+              <li>No matching fruits found</li>
+            )}
+          </ul>
 
-      <div style={styles.subSection}>
-        <input
-          type="text"
-          placeholder="Type your name..."
-          value={nameInput}
-          onChange={(e) => setNameInput(e.target.value)}
-        />
-        <p>You typed: <b>{nameInput}</b></p>
-      </div>
+          <hr style={styles.hr} />
 
-      <div style={styles.subSection}>
-        <button onClick={addChild}>Add a new child component</button>
-        <div style={{ marginTop: '10px' }}>
-          {childList.map((child) => (
-            <ChildBox key={child.id} text={child.text} />
-          ))}
+          {/* ============ TASK 4 — Datagrid ============ */}
+          <h1 style={styles.mainHeading}>Task 4: Create a Datagrid</h1>
+
+          <input
+            type="text"
+            placeholder="Search anything (name, orders, date, amount)..."
+            value={gridSearch}
+            onChange={(e) => setGridSearch(e.target.value)}
+            style={{ marginBottom: '10px', padding: '5px', width: '280px' }}
+          />
+
+          <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', width: '100%', fontSize: '14px' }}>
+            <thead style={{ background: '#f0f0f0' }}>
+              <tr>
+                <th onClick={() => handleSort('customer')} style={{ cursor: 'pointer' }}>
+                  Customer {sortField === 'customer' ? (sortAsc ? '▲' : '▼') : ''}
+                </th>
+                <th onClick={() => handleSort('lastSeen')} style={{ cursor: 'pointer' }}>
+                  Last Seen {sortField === 'lastSeen' ? (sortAsc ? '▲' : '▼') : ''}
+                </th>
+                <th onClick={() => handleSort('orders')} style={{ cursor: 'pointer' }}>
+                  Orders {sortField === 'orders' ? (sortAsc ? '▲' : '▼') : ''}
+                </th>
+                <th onClick={() => handleSort('totalSpent')} style={{ cursor: 'pointer' }}>
+                  Total Spent {sortField === 'totalSpent' ? (sortAsc ? '▲' : '▼') : ''}
+                </th>
+                <th>Latest Purchase</th>
+                <th>News</th>
+                <th>Segment</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedAndFilteredCustomers.map((cust) => (
+                <tr key={cust.id}>
+                  <td>{cust.customer}</td>
+                  <td>{cust.lastSeen}</td>
+                  <td>{cust.orders}</td>
+                  <td>{cust.totalSpent} $US</td>
+                  <td>{cust.latestPurchase || '-'}</td>
+                  <td>{cust.news ? '✔' : '✘'}</td>
+                  <td>{cust.segment || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <hr style={styles.hr} />
+
+          {/* ============ TASK 5 — Drag & Drop Task List ============ */}
+          <h1 style={styles.mainHeading}>Task 5: Create a Drag & Drop Task List</h1>
+
+          <div style={dragDropStyles.row}>
+            <TaskBlock title="TODAY" blockKey="today" />
+            <TaskBlock title="TOMORROW" blockKey="tomorrow" />
+          </div>
+          <div style={dragDropStyles.row}>
+            <TaskBlock title="THIS WEEK" blockKey="thisWeek" />
+            <TaskBlock title="NEXT WEEK" blockKey="nextWeek" />
+          </div>
+          <div style={dragDropStyles.rowFull}>
+            <TaskBlock title="UNPLANNED" blockKey="unplanned" />
+          </div>
+
         </div>
-      </div>
+      } />
 
-      <div style={styles.subSection}>
-        <input
-          type="number"
-          placeholder="Number 1"
-          value={num1}
-          onChange={(e) => setNum1(e.target.value)}
-          style={{ width: '100px', marginRight: '10px' }}
-        />
-        +
-        <input
-          type="number"
-          placeholder="Number 2"
-          value={num2}
-          onChange={(e) => setNum2(e.target.value)}
-          style={{ width: '100px', margin: '0 10px' }}
-        />
-        <p>Sum = <b>{sum}</b></p>
-      </div>
-
-      <hr style={styles.hr} />
-
-      {/* ============ TASK 2 — Counter ============ */}
-      <h1 style={styles.mainHeading}>Task 2: Create a Counter</h1>
-      <button onClick={() => setCounter(counter - 1)}>Decrease</button>
-      <span style={{ margin: '0 15px', fontSize: '20px' }}>{counter}</span>
-      <button onClick={() => setCounter(counter + 1)}>Increase</button>
-
-      <hr style={styles.hr} />
-
-      {/* ============ TASK 3 — Search Filter ============ */}
-      <h1 style={styles.mainHeading}>Task 3: Build Search Filter</h1>
-      <input
-        type="text"
-        placeholder="Search fruits..."
-        value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
-      />
-      <ul>
-        {filteredFruits.length > 0 ? (
-          filteredFruits.map((fruit, index) => <li key={index}>{fruit}</li>)
-        ) : (
-          <li>No matching fruits found</li>
-        )}
-      </ul>
-
-      <hr style={styles.hr} />
-
-      {/* ============ TASK 4 — Datagrid ============ */}
-      <h1 style={styles.mainHeading}>Task 4: Create a Datagrid</h1>
-
-      <input
-        type="text"
-        placeholder="Search by customer name..."
-        value={gridSearch}
-        onChange={(e) => setGridSearch(e.target.value)}
-        style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
-      />
-
-      <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', width: '100%', fontSize: '14px' }}>
-        <thead style={{ background: '#f0f0f0' }}>
-          <tr>
-            <th onClick={() => handleSort('customer')} style={{ cursor: 'pointer' }}>
-              Customer {sortField === 'customer' ? (sortAsc ? '▲' : '▼') : ''}
-            </th>
-            <th onClick={() => handleSort('lastSeen')} style={{ cursor: 'pointer' }}>
-              Last Seen {sortField === 'lastSeen' ? (sortAsc ? '▲' : '▼') : ''}
-            </th>
-            <th onClick={() => handleSort('orders')} style={{ cursor: 'pointer' }}>
-              Orders {sortField === 'orders' ? (sortAsc ? '▲' : '▼') : ''}
-            </th>
-            <th onClick={() => handleSort('totalSpent')} style={{ cursor: 'pointer' }}>
-              Total Spent {sortField === 'totalSpent' ? (sortAsc ? '▲' : '▼') : ''}
-            </th>
-            <th>Latest Purchase</th>
-            <th>News</th>
-            <th>Segment</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedAndFilteredCustomers.map((cust) => (
-            <tr key={cust.id}>
-              <td>{cust.customer}</td>
-              <td>{cust.lastSeen}</td>
-              <td>{cust.orders}</td>
-              <td>{cust.totalSpent} $US</td>
-              <td>{cust.latestPurchase || '-'}</td>
-              <td>{cust.news ? '✔' : '✘'}</td>
-              <td>{cust.segment || '-'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <hr style={styles.hr} />
-
-      {/* ============ TASK 5 — Drag & Drop Task List ============ */}
-      <h1 style={styles.mainHeading}>Task 5: Create a Drag & Drop Task List</h1>
-
-      <div style={dragDropStyles.row}>
-        <TaskBlock title="TODAY" blockKey="today" />
-        <TaskBlock title="TOMORROW" blockKey="tomorrow" />
-      </div>
-      <div style={dragDropStyles.row}>
-        <TaskBlock title="THIS WEEK" blockKey="thisWeek" />
-        <TaskBlock title="NEXT WEEK" blockKey="nextWeek" />
-      </div>
-      <div style={dragDropStyles.rowFull}>
-        <TaskBlock title="UNPLANNED" blockKey="unplanned" />
-      </div>
-
-    </div>
+      <Route path="/task6" element={<Task6Page />} />
+    </Routes>
   )
 }
 
