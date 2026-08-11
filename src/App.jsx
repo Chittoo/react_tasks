@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import Task6Page from './Task6Page'
+import BackOfficePage from './admin/BackOfficePage'
 
 function App() {
   // ---------------- Array of records (Task 1 part) ----------------
@@ -164,6 +165,25 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={
+        <div style={{ padding: '40px', fontFamily: 'Arial', maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
+          <h1 style={{ marginBottom: '10px' }}>React Tasks</h1>
+          <p style={{ color: '#666', marginBottom: '30px' }}>Choose where you want to go</p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <Link to="/tasks1to5" style={{ padding: '14px', background: '#eee', color: '#000', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}>
+              Task 1–5 (Practice Tasks)
+            </Link>
+            <Link to="/task6" style={{ padding: '14px', background: '#4a4ae0', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}>
+              Task 6 — To-Do App (User)
+            </Link>
+            <Link to="/backoffice" style={{ padding: '14px', background: '#333', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}>
+              Task 7 — Back Office (Admin)
+            </Link>
+          </div>
+        </div>
+      } />
+
+      <Route path="/tasks1to5" element={
         <div style={{ padding: '20px', fontFamily: 'Arial', maxWidth: '900px', margin: '0 auto' }}>
 
           {/* ============ TASK 1 ============ */}
@@ -341,6 +361,7 @@ function App() {
       } />
 
       <Route path="/task6" element={<Task6Page />} />
+      <Route path="/backoffice" element={<BackOfficePage />} />
     </Routes>
   )
 }

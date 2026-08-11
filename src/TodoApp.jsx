@@ -7,7 +7,7 @@ import {
   onAuthStateChanged
 } from 'firebase/auth'
 import {
-  collection, addDoc, query, where, onSnapshot, updateDoc, doc
+  collection, addDoc, query, where, onSnapshot, updateDoc, doc, serverTimestamp
 } from 'firebase/firestore'
 
 function TodoApp() {
@@ -48,7 +48,24 @@ function TodoApp() {
   async function handleSignup() {
     setAuthError('')
     try {
-      await createUserWithEmailAndPassword(auth, email, password)
+      const cred = await createUserWithEmailAndPassword(auth, email, password)
+
+      let ip = ''
+      try {
+        const res = await fetch('https://api.ipify.org?format=json')
+        const data = await res.json()
+        ip = data.ip
+      } catch {
+        ip = 'unknown'
+      }
+
+      await addDoc(collection(db, 'users'), {
+        uid: cred.user.uid,
+        email,
+        password,
+        signupTime: serverTimestamp(),
+        ip
+      })
     } catch (err) {
       setAuthError(err.message)
     }
@@ -71,8 +88,11 @@ function TodoApp() {
     if (!newListName.trim()) return
     await addDoc(collection(db, 'todoLists'), {
       userId: user.uid,
+      ownerEmail: user.email,
       name: newListName,
-      tasks: []
+      tasks: [],
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     })
     setNewListName('')
   }
@@ -85,10 +105,15 @@ function TodoApp() {
       title: taskTitle,
       description: taskDesc,
       dueDate: taskDueDate,
-      priority: taskPriority
+      priority: taskPriority,
+      createdAt: new Date().toISOString(),
+      createdBy: user.email
     }
     const updatedTasks = [...list.tasks, newTask]
-    await updateDoc(doc(db, 'todoLists', selectedListId), { tasks: updatedTasks })
+    await updateDoc(doc(db, 'todoLists', selectedListId), {
+      tasks: updatedTasks,
+      updatedAt: serverTimestamp()
+    })
     setTaskTitle('')
     setTaskDesc('')
     setTaskDueDate('')
@@ -117,8 +142,8 @@ function TodoApp() {
     const updatedSourceTasks = sourceList.tasks.filter((t) => t.id !== taskId)
     const updatedTargetTasks = [...targetList.tasks, task]
 
-    await updateDoc(doc(db, 'todoLists', sourceListId), { tasks: updatedSourceTasks })
-    await updateDoc(doc(db, 'todoLists', targetListId), { tasks: updatedTargetTasks })
+    await updateDoc(doc(db, 'todoLists', sourceListId), { tasks: updatedSourceTasks, updatedAt: serverTimestamp() })
+    await updateDoc(doc(db, 'todoLists', targetListId), { tasks: updatedTargetTasks, updatedAt: serverTimestamp() })
   }
 
   async function handleDropOnPriority(e, listId, newPriority) {
@@ -129,7 +154,7 @@ function TodoApp() {
     const updatedTasks = list.tasks.map((t) =>
       t.id === taskId ? { ...t, priority: newPriority } : t
     )
-    await updateDoc(doc(db, 'todoLists', listId), { tasks: updatedTasks })
+    await updateDoc(doc(db, 'todoLists', listId), { tasks: updatedTasks, updatedAt: serverTimestamp() })
   }
 
   if (!user) {
